@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Suomi-treeni</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Suomi">
+<meta name="theme-color" content="#f3f1ea">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<link rel="manifest" href="manifest.json">
+<style>
+  :root{
+    --ink:#13212e;        /* diep meer-blauw */
+    --paper:#f3f1ea;      /* berkenwit, warm */
+    --paper-2:#fbfaf6;
+    --line:#d9d4c7;
+    --blue:#1f5f8b;       /* meer */
+    --blue-deep:#143a52;
+    --amber:#c7741f;      /* hout / lantaarn */
+    --amber-soft:#e9c79b;
+    --good:#3a7d5d;
+    --muted:#5d6873;
+    --shadow:0 1px 0 rgba(0,0,0,.04), 0 8px 24px -16px rgba(19,33,46,.4);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    line-height:1.4;
+    -webkit-font-smoothing:antialiased;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  .wrap{max-width:680px;margin:0 auto;padding:18px 16px 96px;}
+
+  header.top{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:6px;}
+  .brand{font-weight:800;letter-spacing:-.02em;font-size:26px;}
+  .brand small{display:block;font-weight:600;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px;}
+  .streak{font-size:13px;color:var(--muted);text-align:right;white-space:nowrap;}
+  .streak b{color:var(--amber);font-size:17px;}
+
+  .banner{background:#fff4e0;border:1px solid var(--amber-soft);color:#7a4a12;border-radius:12px;padding:10px 12px;font-size:13px;margin:12px 0;}
+  .banner.hidden{display:none;}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:5px;margin:14px 0 16px;overflow-x:auto;}
+  .tab{flex:0 0 auto;border:0;background:transparent;color:var(--muted);font-weight:700;font-size:13px;padding:9px 13px;border-radius:10px;cursor:pointer;white-space:nowrap;}
+  .tab.active{background:var(--ink);color:var(--paper-2);}
+
+  /* today hero */
+  .hero{background:linear-gradient(160deg,var(--blue-deep),var(--blue));color:#eaf3f8;border-radius:18px;padding:18px;box-shadow:var(--shadow);margin-bottom:16px;}
+  .hero h2{margin:0 0 2px;font-size:15px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#bcd6e6;}
+  .hero .date{font-size:13px;color:#9fc0d4;margin-bottom:14px;}
+  .play-all{display:flex;align-items:center;gap:14px;}
+  .big-play{width:60px;height:60px;border-radius:50%;border:0;background:var(--amber);color:#fff;font-size:26px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 6px 16px -6px rgba(199,116,31,.7);}
+  .big-play:active{transform:scale(.95);}
+  .play-all .lbl{font-weight:700;font-size:17px;}
+  .play-all .sub{font-size:13px;color:#bcd6e6;}
+
+  .lesson-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .lesson-title{font-size:22px;font-weight:800;letter-spacing:-.02em;margin:2px 0 1px;color:#fff;}
+  .lesson-nav{display:flex;gap:8px;flex:0 0 auto;}
+  .navbtn{width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.08);color:#fff;font-size:24px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .navbtn:active{transform:scale(.9);}
+  .today-reset{margin-top:14px;background:rgba(255,255,255,.14);border:0;color:#eaf3f8;font-size:13px;font-weight:600;padding:8px 14px;border-radius:20px;cursor:pointer;}
+  .today-reset.hidden{display:none;}
+
+  /* controls */
+  .controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.15);}
+  .ctrl{display:flex;align-items:center;gap:8px;font-size:13px;color:#dceaf2;}
+  .ctrl input[type=range]{width:110px;accent-color:var(--amber);}
+  .switch{position:relative;display:inline-block;width:42px;height:24px;}
+  .switch input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;inset:0;background:rgba(255,255,255,.25);border-radius:24px;transition:.2s;}
+  .slider:before{content:"";position:absolute;height:18px;width:18px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;}
+  .switch input:checked + .slider{background:var(--amber);}
+  .switch input:checked + .slider:before{transform:translateX(18px);}
+
+  .seg{display:inline-flex;background:rgba(255,255,255,.12);border-radius:10px;padding:3px;}
+  .seg-btn{border:0;background:transparent;color:#cfe1ec;font-size:13px;font-weight:700;padding:7px 12px;border-radius:8px;cursor:pointer;}
+  .seg-btn.active{background:var(--amber);color:#fff;}
+  .mode-hint{font-size:12px;color:#9fc0d4;margin-top:10px;line-height:1.5;}
+
+  .prompt-card{background:var(--paper-2);border:1px solid var(--amber-soft);border-left:4px solid var(--amber);border-radius:14px;padding:14px;margin-bottom:16px;box-shadow:var(--shadow);}
+  .prompt-eyebrow{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--amber);}
+  .prompt-fi{font-size:20px;font-weight:800;letter-spacing:-.01em;margin-top:6px;}
+  .prompt-nl{font-size:14px;color:var(--muted);margin-top:2px;}
+  .prompt-actions{display:flex;align-items:center;gap:12px;margin-top:12px;flex-wrap:wrap;}
+  .prompt-play{border:0;background:var(--blue);color:#fff;font-size:14px;font-weight:700;padding:9px 14px;border-radius:10px;cursor:pointer;}
+  .prompt-hint{font-size:12px;color:var(--muted);}
+
+  /* list */
+  .group{margin:20px 0 8px;}
+  .group h3{font-size:13px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin:0 0 10px;display:flex;align-items:center;gap:8px;}
+  .group h3:after{content:"";flex:1;height:1px;background:var(--line);}
+
+  .card{display:flex;align-items:center;gap:12px;background:var(--paper-2);border:1px solid var(--line);border-radius:14px;padding:12px 12px;margin-bottom:9px;box-shadow:var(--shadow);}
+  .card.known{opacity:.55;}
+  .card .txt{flex:1;min-width:0;cursor:pointer;}
+  .card .fi{font-size:18px;font-weight:700;letter-spacing:-.01em;}
+  .card .nl{font-size:14px;color:var(--muted);margin-top:1px;}
+  .card .note{font-size:12px;color:var(--amber);margin-top:3px;}
+  .speak-fi{width:46px;height:46px;flex:0 0 auto;border:0;border-radius:12px;background:var(--blue);color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .speak-fi:active{transform:scale(.94);}
+  .speak-fi.playing{background:var(--amber);}
+  .mini{display:flex;flex-direction:column;gap:6px;flex:0 0 auto;}
+  .iconbtn{width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .iconbtn.on{background:var(--good);color:#fff;border-color:var(--good);}
+
+  .empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:14px;}
+  .hideview{display:none;}
+
+  /* sticky stop bar */
+  .stopbar{position:fixed;left:0;right:0;bottom:0;display:flex;justify-content:center;padding:10px 16px calc(10px + env(safe-area-inset-bottom));pointer-events:none;}
+  .stopbar.hidden{display:none;}
+  .stopbar button{pointer-events:auto;background:var(--ink);color:var(--paper);border:0;border-radius:30px;padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px -8px rgba(0,0,0,.5);}
+
+  footer{text-align:center;color:var(--muted);font-size:12px;margin-top:24px;line-height:1.6;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">Suomi-treeni<small>Dagelijks Fins, hardop</small></div>
+    <div class="streak">reeks<br><b id="streak">0</b> dagen</div>
+  </header>
+
+  <div class="banner hidden" id="voiceWarn">
+    Geen Finse stem gevonden. Voeg er een toe via Systeeminstellingen &gt; Toegankelijkheid &gt; Gesproken materiaal &gt; Stemmen, en herlaad. Afspelen werkt voorlopig met een andere stem.
+  </div>
+
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-view="today">Vandaag</button>
+    <button class="tab" data-view="all">Alles</button>
+    <button class="tab" data-view="review">Herhalen</button>
+  </div>
+
+  <!-- VANDAAG -->
+  <section id="view-today">
+    <div class="hero">
+      <div class="lesson-head">
+        <div>
+          <h2 id="lessonEyebrow">Les 1 / 8</h2>
+          <div class="lesson-title" id="lessonTitle"></div>
+          <div class="date" id="todayDate"></div>
+        </div>
+        <div class="lesson-nav">
+          <button class="navbtn" id="prevLesson" aria-label="Vorige les">‹</button>
+          <button class="navbtn" id="nextLesson" aria-label="Volgende les">›</button>
+        </div>
+      </div>
+      <button class="today-reset hidden" id="todayReset">↩ Terug naar vandaag</button>
+      <div class="play-all">
+        <button class="big-play" id="playToday" aria-label="Speel les van vandaag af">▶</button>
+        <div>
+          <div class="lbl">Speel de les af</div>
+          <div class="sub" id="todayCount"></div>
+        </div>
+      </div>
+      <div class="controls">
+        <div class="ctrl">Tempo
+          <input type="range" id="rate" min="0.6" max="1.1" step="0.05" value="0.9">
+        </div>
+        <div class="seg" id="modeSeg">
+          <button class="seg-btn active" data-mode="leren">Leren</button>
+          <button class="seg-btn" data-mode="toets">Toets jezelf</button>
+        </div>
+        <div class="ctrl">Passief
+          <label class="switch"><input type="checkbox" id="passiveToggle"><span class="slider"></span></label>
+        </div>
+      </div>
+      <div class="mode-hint" id="modeHint"></div>
+    </div>
+    <div class="prompt-card" id="promptCard">
+      <div class="prompt-eyebrow">Spreekopdracht van de week</div>
+      <div class="prompt-fi" id="promptFi"></div>
+      <div class="prompt-nl" id="promptNl"></div>
+      <div class="prompt-actions">
+        <button class="prompt-play" id="promptPlay">▶ Hoor het</button>
+        <span class="prompt-hint">Stuur dit als spraakmemo naar je Finse familie</span>
+      </div>
+    </div>
+    <div id="todayList"></div>
+  </section>
+
+  <!-- ALLES -->
+  <section id="view-all" class="hideview"></section>
+
+  <!-- HERHALEN -->
+  <section id="view-review" class="hideview">
+    <div id="reviewList"></div>
+  </section>
+
+  <footer>
+    Tik op een kaart of de blauwe knop om de Finse zin te horen. ✓ = ik ken dit. ↻ = in herhaal-lijst.<br>
+    Klemtoon ligt altijd op de eerste lettergreep. Dubbele letter = langer aanhouden.
+  </footer>
+</div>
+
+<div class="stopbar hidden" id="stopbar">
+  <button id="stopBtn">■ Stop afspelen</button>
+</div>
+
+<script>
+/* ---------- Data: didactisch geordend ---------- */
+const DATA = [
+  {g:"Pronomen", items:[
+    {fi:"minä", nl:"ik"},
+    {fi:"sinä", nl:"jij"},
+    {fi:"hän", nl:"hij / zij"},
+    {fi:"me", nl:"wij"},
+    {fi:"te", nl:"jullie"},
+    {fi:"he", nl:"zij (meervoud)"},
+  ]},
+  {g:"Olla = zijn", items:[
+    {fi:"minä olen", nl:"ik ben"},
+    {fi:"sinä olet", nl:"jij bent"},
+    {fi:"hän on", nl:"hij/zij is"},
+    {fi:"me olemme", nl:"wij zijn"},
+    {fi:"te olette", nl:"jullie zijn"},
+    {fi:"he ovat", nl:"zij zijn"},
+  ]},
+  {g:"Begroeten en beleefd", items:[
+    {fi:"Moi", nl:"Hoi", note:"informeel; Hei kan ook"},
+    {fi:"Hyvää huomenta", nl:"Goedemorgen"},
+    {fi:"Hyvää päivää", nl:"Goedendag"},
+    {fi:"Hyvää iltaa", nl:"Goedenavond"},
+    {fi:"Hyvää yötä", nl:"Welterusten"},
+    {fi:"Näkemiin", nl:"Tot ziens"},
+    {fi:"Moi moi", nl:"Doei"},
+    {fi:"Kiitos", nl:"Dank je"},
+    {fi:"Kiitos paljon", nl:"Hartelijk dank"},
+    {fi:"Ole hyvä", nl:"Alsjeblieft / Graag gedaan"},
+    {fi:"Anteeksi", nl:"Sorry / Pardon"},
+    {fi:"Kyllä", nl:"Ja", note:"spreektaal: Joo"},
+    {fi:"Ei", nl:"Nee"},
+  ]},
+  {g:"Kennismaken", items:[
+    {fi:"Mitä kuuluu?", nl:"Hoe gaat het?"},
+    {fi:"Hyvää, kiitos", nl:"Goed, dank je"},
+    {fi:"Mikä sinun nimesi on?", nl:"Hoe heet je?"},
+    {fi:"Minun nimeni on Merten", nl:"Ik heet Merten"},
+    {fi:"Hauska tutustua", nl:"Aangenaam"},
+    {fi:"Mistä olet kotoisin?", nl:"Waar kom je vandaan?"},
+    {fi:"Olen Hollannista", nl:"Ik kom uit Nederland"},
+    {fi:"Olen puoliksi suomalainen", nl:"Ik ben half Fins"},
+    {fi:"Puhutko englantia?", nl:"Spreek je Engels?"},
+    {fi:"En ymmärrä", nl:"Ik begrijp het niet"},
+    {fi:"Puhu hitaasti, kiitos", nl:"Spreek langzaam, alsjeblieft"},
+  ]},
+  {g:"Vraagwoorden", items:[
+    {fi:"Mikä?", nl:"Wat / welk?"},
+    {fi:"Kuka?", nl:"Wie?"},
+    {fi:"Missä?", nl:"Waar?"},
+    {fi:"Milloin?", nl:"Wanneer?"},
+    {fi:"Miksi?", nl:"Waarom?"},
+    {fi:"Miten?", nl:"Hoe?"},
+    {fi:"Paljonko?", nl:"Hoeveel?"},
+  ]},
+  {g:"Getallen 0 tot 10", items:[
+    {fi:"nolla", nl:"nul"},
+    {fi:"yksi", nl:"een"},
+    {fi:"kaksi", nl:"twee"},
+    {fi:"kolme", nl:"drie"},
+    {fi:"neljä", nl:"vier"},
+    {fi:"viisi", nl:"vijf"},
+    {fi:"kuusi", nl:"zes"},
+    {fi:"seitsemän", nl:"zeven"},
+    {fi:"kahdeksan", nl:"acht"},
+    {fi:"yhdeksän", nl:"negen"},
+    {fi:"kymmenen", nl:"tien"},
+  ]},
+  {g:"Werkwoorden (ik-vorm)", items:[
+    {fi:"olen", nl:"ik ben"},
+    {fi:"menen", nl:"ik ga"},
+    {fi:"tulen", nl:"ik kom"},
+    {fi:"syön", nl:"ik eet"},
+    {fi:"juon", nl:"ik drink"},
+    {fi:"haluan", nl:"ik wil"},
+    {fi:"voin", nl:"ik kan"},
+    {fi:"puhun", nl:"ik spreek"},
+    {fi:"tiedän", nl:"ik weet"},
+    {fi:"näen", nl:"ik zie"},
+    {fi:"asun", nl:"ik woon"},
+    {fi:"rakastan", nl:"ik hou van"},
+  ]},
+  {g:"Dagelijkse zinnen", items:[
+    {fi:"Haluan kahvia", nl:"Ik wil koffie", note:"kahvi → kahvia (partitief)"},
+    {fi:"Minulla on nälkä", nl:"Ik heb honger", note:"letterlijk: bij mij is honger"},
+    {fi:"Minulla on jano", nl:"Ik heb dorst"},
+    {fi:"Paljonko tämä maksaa?", nl:"Hoeveel kost dit?"},
+    {fi:"Missä on vessa?", nl:"Waar is het toilet?"},
+    {fi:"Voitko auttaa minua?", nl:"Kun je me helpen?"},
+    {fi:"Asun Amsterdamissa", nl:"Ik woon in Amsterdam", note:"-ssa = in (naamval)"},
+    {fi:"Minulla on tytär", nl:"Ik heb een dochter"},
+    {fi:"Rakastan sinua", nl:"Ik hou van jou"},
+  ]},
+  {g:"Kids (samen)", items:[
+    {fi:"Hyvää huomenta, kulta", nl:"Goedemorgen, lieverd"},
+    {fi:"Onko sinulla nälkä?", nl:"Heb je honger?"},
+    {fi:"Aamupala on valmis", nl:"Het ontbijt is klaar"},
+    {fi:"Onko hyvää?", nl:"Is het lekker?"},
+    {fi:"Syö kaikki", nl:"Eet alles op"},
+    {fi:"Pese kädet", nl:"Was je handen"},
+    {fi:"Kylpyaika!", nl:"Badtijd!"},
+    {fi:"Mennään nukkumaan", nl:"We gaan slapen"},
+    {fi:"Hyvää yötä, nuku hyvin", nl:"Welterusten, slaap lekker"},
+    {fi:"Hyvin tehty!", nl:"Goed gedaan!"},
+    {fi:"Katso!", nl:"Kijk!"},
+    {fi:"Tule tänne", nl:"Kom hier"},
+    {fi:"Leikitäänkö?", nl:"Zullen we spelen?"},
+    {fi:"koira", nl:"hond"},
+    {fi:"kissa", nl:"kat"},
+    {fi:"karhu", nl:"beer"},
+  ]},
+  {g:"Familie en thuis", items:[
+    {fi:"äiti", nl:"mama"},
+    {fi:"isä", nl:"papa"},
+    {fi:"mummo", nl:"oma"},
+    {fi:"vaari", nl:"opa"},
+    {fi:"sisko", nl:"zus"},
+    {fi:"veli", nl:"broer"},
+    {fi:"perhe", nl:"gezin / familie"},
+    {fi:"koti", nl:"thuis"},
+    {fi:"rakas", nl:"lieve / dierbare"},
+    {fi:"ruoka", nl:"eten"},
+    {fi:"leipä", nl:"brood"},
+    {fi:"maito", nl:"melk"},
+    {fi:"vesi", nl:"water"},
+    {fi:"kahvi", nl:"koffie"},
+    {fi:"pulla", nl:"kardemombroodje", note:"Fins lekkers bij de koffie"},
+    {fi:"sauna", nl:"sauna"},
+    {fi:"mökki", nl:"zomerhuisje", note:"Fins begrip: huisje aan het water"},
+    {fi:"metsä", nl:"bos"},
+    {fi:"kiitos ruoasta", nl:"bedankt voor het eten", note:"zeg je na de maaltijd"},
+  ]},
+];
+
+/* flat lijst met stabiele id's */
+const FLAT = [];
+DATA.forEach((grp,gi)=>grp.items.forEach((it,ii)=>{
+  FLAT.push({...it, group:grp.g, id:gi+"-"+ii});
+}));
+
+/* ---------- Opslag (window.storage met fallback) ---------- */
+const mem = {};
+const store = {
+  async get(k){
+    try{ if(window.storage){const r=await window.storage.get(k); return r?r.value:null;} }catch(e){}
+    try{ const v=localStorage.getItem(k); if(v!==null) return v; }catch(e){}
+    return (k in mem)?mem[k]:null;
+  },
+  async set(k,v){
+    try{ if(window.storage){await window.storage.set(k,v); return;} }catch(e){}
+    try{ localStorage.setItem(k,v); return; }catch(e){}
+    mem[k]=v;
+  }
+};
+let state = {known:{}, review:{}, lastDay:null, streak:0, offset:0, mode:"leren", passive:false};
+
+async function loadState(){
+  const raw = await store.get("suomi-state");
+  if(raw){ try{ state = {...state, ...JSON.parse(raw)}; }catch(e){} }
+}
+async function saveState(){ await store.set("suomi-state", JSON.stringify(state)); }
+
+/* ---------- Datum / dagindex ---------- */
+function dayIndex(){
+  const d = new Date();
+  return Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);
+}
+function dateLabel(){
+  return new Date().toLocaleDateString("nl-NL",{weekday:"long",day:"numeric",month:"long"});
+}
+function weekIndex(){ return Math.floor(dayIndex()/7); }
+const WEEK_PROMPTS = [
+  {fi:"Hei! Harjoittelen suomea", nl:"Hoi! Ik oefen Fins"},
+  {fi:"Mitä kuuluu?", nl:"Hoe gaat het?"},
+  {fi:"Tänään oli hyvä päivä", nl:"Vandaag was een goede dag"},
+  {fi:"Opetan lapsille suomea", nl:"Ik leer de kinderen Fins"},
+  {fi:"Ikävä sinua", nl:"Ik mis je"},
+  {fi:"Milloin nähdään?", nl:"Wanneer zien we elkaar?"},
+  {fi:"Rakastan teitä", nl:"Ik hou van jullie"},
+  {fi:"Kiitos kaikesta", nl:"Bedankt voor alles"},
+  {fi:"Söimme tänään hyvin", nl:"We hebben vandaag lekker gegeten"},
+  {fi:"Haluan oppia lisää", nl:"Ik wil meer leren"},
+];
+function weekPrompt(){ return WEEK_PROMPTS[weekIndex()%WEEK_PROMPTS.length]; }
+function lessonIndex(){
+  const n = DATA.length;
+  return (((dayIndex()+(state.offset||0))%n)+n)%n;
+}
+function lessonItems(){
+  const lesson = DATA[lessonIndex()];
+  return FLAT.filter(f=>f.group===lesson.g);
+}
+
+/* ---------- Spraak ---------- */
+let voices=[], viFi=null, viNl=null, stopFlag=false, currentBtn=null;
+function loadVoices(){
+  voices = speechSynthesis.getVoices()||[];
+  viFi = voices.find(v=>v.lang && v.lang.toLowerCase().startsWith("fi")) || null;
+  viNl = voices.find(v=>v.lang && v.lang.toLowerCase().startsWith("nl")) || null;
+  document.getElementById("voiceWarn").classList.toggle("hidden", !!viFi);
+}
+if("speechSynthesis" in window){
+  loadVoices();
+  speechSynthesis.onvoiceschanged = loadVoices;
+}
+
+function speak(text, lang){
+  return new Promise(res=>{
+    if(!("speechSynthesis" in window)){res();return;}
+    const u = new SpeechSynthesisUtterance(text);
+    const v = lang==="fi"?viFi:viNl;
+    if(v) u.voice=v;
+    u.lang = v?v.lang:(lang==="fi"?"fi-FI":"nl-NL");
+    u.rate = parseFloat(document.getElementById("rate").value);
+    u.onend=res; u.onerror=res;
+    speechSynthesis.speak(u);
+  });
+}
+const wait = ms => new Promise(r=>setTimeout(r,ms));
+
+let wakeLock=null;
+async function requestWake(){
+  try{ if('wakeLock' in navigator){ wakeLock = await navigator.wakeLock.request('screen'); } }catch(e){}
+}
+async function releaseWake(){ try{ if(wakeLock){ await wakeLock.release(); wakeLock=null; } }catch(e){} }
+
+async function playItem(item, btn){
+  const mode = state.mode||"leren";
+  if(btn){ if(currentBtn) currentBtn.classList.remove("playing"); btn.classList.add("playing"); currentBtn=btn; }
+  await speak(item.nl,"nl");
+  if(stopFlag){ if(btn) btn.classList.remove("playing"); return; }
+  if(mode==="toets"){
+    await wait(2600);            // stilte: zeg zelf het Fins
+    if(stopFlag){ if(btn) btn.classList.remove("playing"); return; }
+    await speak(item.fi,"fi");   // controle
+  } else {
+    await wait(120);
+    await speak(item.fi,"fi");
+    if(!stopFlag){ await wait(150); await speak(item.fi,"fi"); }  // nazeggen
+  }
+  if(btn) btn.classList.remove("playing");
+}
+
+async function playList(list){
+  stopFlag=false;
+  document.getElementById("stopbar").classList.remove("hidden");
+  const passive = !!state.passive;
+  if(passive) await requestWake();
+  do {
+    for(const item of list){
+      if(stopFlag) break;
+      const btn = document.querySelector('[data-speak="'+item.id+'"]');
+      await playItem(item, btn);
+      if(stopFlag) break;
+      await wait((state.mode==="toets")?500:700);
+    }
+    if(passive && !stopFlag) await wait(1200);
+  } while(passive && !stopFlag);
+  stopFlag=true;
+  await releaseWake();
+  document.getElementById("stopbar").classList.add("hidden");
+  if(currentBtn){currentBtn.classList.remove("playing");currentBtn=null;}
+  await bumpStreak();
+}
+
+function stopAll(){
+  stopFlag=true;
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+  releaseWake();
+  document.getElementById("stopbar").classList.add("hidden");
+  if(currentBtn){currentBtn.classList.remove("playing");currentBtn=null;}
+}
+
+/* ---------- Streak ---------- */
+async function bumpStreak(){
+  const di = dayIndex();
+  if(state.lastDay===di) return;
+  state.streak = (state.lastDay===di-1)?state.streak+1:1;
+  state.lastDay = di;
+  await saveState();
+  renderStreak();
+}
+function renderStreak(){ document.getElementById("streak").textContent = state.streak||0; }
+
+/* ---------- Render ---------- */
+function cardEl(item){
+  const card=document.createElement("div");
+  card.className="card"+(state.known[item.id]?" known":"");
+  card.dataset.id=item.id;
+
+  const play=document.createElement("button");
+  play.className="speak-fi"; play.dataset.speak=item.id; play.textContent="▶";
+  play.setAttribute("aria-label","Speel "+item.fi+" af");
+  play.onclick=()=>playItem(item, play);
+
+  const txt=document.createElement("div");
+  txt.className="txt";
+  txt.innerHTML='<div class="fi"></div><div class="nl"></div>'+(item.note?'<div class="note"></div>':'');
+  txt.querySelector(".fi").textContent=item.fi;
+  txt.querySelector(".nl").textContent=item.nl;
+  if(item.note) txt.querySelector(".note").textContent=item.note;
+  txt.onclick=()=>playItem(item, play);
+
+  const mini=document.createElement("div");
+  mini.className="mini";
+  const know=document.createElement("button");
+  know.className="iconbtn"+(state.known[item.id]?" on":""); know.textContent="✓";
+  know.title="Ik ken dit";
+  know.onclick=async()=>{
+    state.known[item.id]=!state.known[item.id];
+    await saveState();
+    know.classList.toggle("on",!!state.known[item.id]);
+    card.classList.toggle("known",!!state.known[item.id]);
+  };
+  const rev=document.createElement("button");
+  rev.className="iconbtn"+(state.review[item.id]?" on":""); rev.textContent="↻";
+  rev.title="In herhaal-lijst";
+  rev.onclick=async()=>{
+    state.review[item.id]=!state.review[item.id];
+    await saveState();
+    rev.classList.toggle("on",!!state.review[item.id]);
+  };
+  mini.appendChild(know); mini.appendChild(rev);
+
+  card.appendChild(play); card.appendChild(txt); card.appendChild(mini);
+  return card;
+}
+
+function renderToday(){
+  const idx=lessonIndex();
+  const lesson=DATA[idx];
+  const list=lessonItems();
+  const off=state.offset||0;
+  document.getElementById("lessonEyebrow").textContent="Les "+(idx+1)+" / "+DATA.length;
+  document.getElementById("lessonTitle").textContent=lesson.g;
+  let sub;
+  if(off===0) sub=dateLabel();
+  else if(off>0) sub="vooruit · +"+off+(off>1?" lessen":" les");
+  else sub="terug · "+off+(off<-1?" lessen":" les");
+  document.getElementById("todayDate").textContent=sub;
+  document.getElementById("todayReset").classList.toggle("hidden", off===0);
+  document.getElementById("todayCount").textContent=list.length+" woorden en zinnen";
+  const box=document.getElementById("todayList"); box.innerHTML="";
+  list.forEach(it=>box.appendChild(cardEl(it)));
+  document.getElementById("playToday").onclick=()=>playList(list);
+}
+function changeLesson(d){
+  stopAll();
+  state.offset=(state.offset||0)+d;
+  saveState();
+  renderToday();
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+function renderAll(){
+  const box=document.getElementById("view-all"); box.innerHTML="";
+  DATA.forEach(grp=>{
+    const wrap=document.createElement("div"); wrap.className="group";
+    const h=document.createElement("h3"); h.textContent=grp.g; wrap.appendChild(h);
+    grp.items.forEach((it,ii)=>{
+      const full=FLAT.find(f=>f.fi===it.fi && f.group===grp.g);
+      wrap.appendChild(cardEl(full));
+    });
+    box.appendChild(wrap);
+  });
+}
+function renderReview(){
+  const box=document.getElementById("reviewList"); box.innerHTML="";
+  const list=FLAT.filter(f=>state.review[f.id]);
+  if(!list.length){
+    box.innerHTML='<div class="empty">Nog niets om te herhalen.<br>Tik ↻ op een kaart om die hier te verzamelen.</div>';
+    return;
+  }
+  const bar=document.createElement("div"); bar.className="group";
+  const h=document.createElement("h3"); h.textContent="Herhalen ("+list.length+")"; bar.appendChild(h);
+  box.appendChild(bar);
+  list.forEach(it=>box.appendChild(cardEl(it)));
+}
+
+function renderPrompt(){
+  const p=weekPrompt();
+  document.getElementById("promptFi").textContent=p.fi;
+  document.getElementById("promptNl").textContent=p.nl;
+  document.getElementById("promptPlay").onclick=()=>{ if("speechSynthesis" in window) speechSynthesis.cancel(); stopFlag=false; speak(p.fi,"fi"); };
+}
+function updateModeHint(){
+  const el=document.getElementById("modeHint"); if(!el) return;
+  let t = (state.mode==="toets")
+    ? "Toets jezelf: hoor het Nederlands, zeg zelf het Fins, dan hoor je het ter controle."
+    : "Leren: hoor de zin en zeg hardop na.";
+  if(state.passive) t += " Passief staat aan: loopt door tot je stopt, scherm blijft aan.";
+  el.textContent=t;
+}
+
+/* ---------- Tabs ---------- */
+document.getElementById("tabs").addEventListener("click",e=>{
+  const t=e.target.closest(".tab"); if(!t) return;
+  stopAll();
+  document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
+  t.classList.add("active");
+  const v=t.dataset.view;
+  document.getElementById("view-today").classList.toggle("hideview",v!=="today");
+  document.getElementById("view-all").classList.toggle("hideview",v!=="all");
+  document.getElementById("view-review").classList.toggle("hideview",v!=="review");
+  if(v==="all") renderAll();
+  if(v==="review") renderReview();
+});
+
+document.getElementById("stopBtn").onclick=stopAll;
+document.getElementById("nextLesson").onclick=()=>changeLesson(1);
+document.getElementById("prevLesson").onclick=()=>changeLesson(-1);
+document.getElementById("todayReset").onclick=()=>{stopAll();state.offset=0;saveState();renderToday();};
+
+document.getElementById("modeSeg").addEventListener("click",e=>{
+  const b=e.target.closest(".seg-btn"); if(!b) return;
+  state.mode=b.dataset.mode; saveState();
+  document.querySelectorAll("#modeSeg .seg-btn").forEach(x=>x.classList.toggle("active",x===b));
+  updateModeHint();
+});
+document.getElementById("passiveToggle").addEventListener("change",e=>{
+  state.passive=e.target.checked; saveState(); updateModeHint();
+});
+document.addEventListener("visibilitychange",()=>{
+  if(document.visibilityState==="visible" && state.passive && !stopFlag) requestWake();
+});
+/* Chrome stopt spraak soms na ~15s; deze nudge houdt het lopend */
+setInterval(()=>{ try{ if("speechSynthesis" in window && speechSynthesis.speaking) speechSynthesis.resume(); }catch(e){} }, 7000);
+
+/* ---------- Init ---------- */
+(async function(){
+  await loadState();
+  renderStreak();
+  document.querySelectorAll("#modeSeg .seg-btn").forEach(x=>x.classList.toggle("active", x.dataset.mode===(state.mode||"leren")));
+  document.getElementById("passiveToggle").checked=!!state.passive;
+  updateModeHint();
+  renderPrompt();
+  renderToday();
+})();
+</script>
+</body>
+</html>
