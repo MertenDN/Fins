@@ -1,0 +1,37 @@
+name: Wekelijkse update
+
+on:
+  schedule:
+    # Elke maandag om 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Promoot 1 nieuw thema
+        run: node scripts/promote.mjs
+
+      - name: Commit en push bij wijzigingen
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -m "Wekelijkse update"
+            git push
+          else
+            echo "Geen wijzigingen; niets te pushen."
+          fi
