@@ -1,0 +1,12 @@
+{
+  "name": "Suomi-treeni · Jarno",
+  "short_name": "Suomi J",
+  "start_url": "jarno.html",
+  "display": "standalone",
+  "background_color": "#f3f1ea",
+  "theme_color": "#143a52",
+  "icons": [
+    { "src": "icon.png", "sizes": "180x180", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

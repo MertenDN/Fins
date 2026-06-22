@@ -1,4 +1,4 @@
-# Weekbrief — Suomi-treeni
+# Weekbrief — Suomi · Jarno
 
 ## Thema van deze week: Mökki Vesilahdessa
 
