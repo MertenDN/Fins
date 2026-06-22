@@ -121,6 +121,9 @@
   .stopbar button{pointer-events:auto;background:var(--ink);color:var(--paper);border:0;border-radius:30px;padding:12px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px -8px rgba(0,0,0,.5);}
 
   footer{text-align:center;color:var(--muted);font-size:12px;margin-top:24px;line-height:1.6;}
+  .lesson-focus{font-size:13px;color:var(--amber-soft);margin:1px 0 2px;font-weight:600;}
+  .group-focus{font-size:12.5px;color:var(--muted);margin:-2px 0 10px;}
+  .sent-sub{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);margin:14px 0 8px;}
 </style>
 </head>
 <body>
@@ -148,6 +151,7 @@
         <div>
           <h2 id="lessonEyebrow">Les 1 / 8</h2>
           <div class="lesson-title" id="lessonTitle"></div>
+          <div class="lesson-focus" id="lessonFocus"></div>
           <div class="date" id="todayDate"></div>
         </div>
         <div class="lesson-nav">
@@ -183,7 +187,7 @@
       <div class="prompt-nl" id="promptNl"></div>
       <div class="prompt-actions">
         <button class="prompt-play" id="promptPlay">▶ Hoor het</button>
-        <span class="prompt-hint">Stuur dit als spraakmemo naar je Finse familie</span>
+        <span class="prompt-hint">Tip: spreek deze in als een voicemessage naar Mumu</span>
       </div>
     </div>
     <div id="todayList"></div>
@@ -210,23 +214,29 @@
 <script>
 /* ---------- Data: didactisch geordend ---------- */
 const DATA = [
-  {g:"Pronomen", items:[
+  {g:"Pronomen", focus:"Persoonlijke voornaamwoorden: ik, jij, hij/zij, wij, jullie, zij.", items:[
     {fi:"minä", nl:"ik"},
     {fi:"sinä", nl:"jij"},
     {fi:"hän", nl:"hij / zij"},
     {fi:"me", nl:"wij"},
     {fi:"te", nl:"jullie"},
     {fi:"he", nl:"zij (meervoud)"},
+  ], zinnen:[
+    {fi:"Minä olen Jarno.", nl:"Ik ben Jarno."},
+    {fi:"Me olemme kaikki Vesilahdessa.", nl:"Wij zijn allemaal in Vesilahti."},
   ]},
-  {g:"Olla = zijn", items:[
+  {g:"Olla = zijn", focus:"Het werkwoord 'olla' (zijn) in alle personen.", items:[
     {fi:"minä olen", nl:"ik ben"},
     {fi:"sinä olet", nl:"jij bent"},
     {fi:"hän on", nl:"hij/zij is"},
     {fi:"me olemme", nl:"wij zijn"},
     {fi:"te olette", nl:"jullie zijn"},
     {fi:"he ovat", nl:"zij zijn"},
+  ], zinnen:[
+    {fi:"Minä olen väsynyt saunan jälkeen.", nl:"Ik ben moe na de sauna."},
+    {fi:"Sirpa on keittiössä ja paistaa kakkua.", nl:"Sirpa is in de keuken en bakt taart."},
   ]},
-  {g:"Mökki Vesilahdessa", items:[
+  {g:"Mökki Vesilahdessa", focus:"Woordenschat rond het zomerhuis; '-ssa' = in (inessief).", items:[
     {fi:"mökki", nl:"zomerhuisje", note:"ons familiehuis in Vesilahti"},
     {fi:"järvi", nl:"meer"},
     {fi:"sauna", nl:"sauna"},
@@ -241,8 +251,11 @@ const DATA = [
     {fi:"Mennään saunaan!", nl:"We gaan de sauna in!", note:"saunaan = naar binnen (illatief)"},
     {fi:"Onko olut kylmä?", nl:"Is het bier koud?"},
     {fi:"Tervetuloa mökille", nl:"Welkom op het zomerhuis"},
+  ], zinnen:[
+    {fi:"Mökki on järven rannalla.", nl:"Het zomerhuis ligt aan het meer."},
+    {fi:"Co'tje odottaa laiturilla.", nl:"Co'tje wacht bij de steiger."},
   ]},
-  {g:"Begroeten en beleefd", items:[
+  {g:"Begroeten en beleefd", focus:"Groeten en beleefdheid: hallo, dank je, alsjeblieft.", items:[
     {fi:"Moi", nl:"Hoi", note:"informeel; Hei kan ook"},
     {fi:"Hyvää huomenta", nl:"Goedemorgen"},
     {fi:"Hyvää päivää", nl:"Goedendag"},
@@ -256,8 +269,11 @@ const DATA = [
     {fi:"Anteeksi", nl:"Sorry / Pardon"},
     {fi:"Kyllä", nl:"Ja", note:"spreektaal: Joo"},
     {fi:"Ei", nl:"Nee"},
+  ], zinnen:[
+    {fi:"Hyvää huomenta, Mumu!", nl:"Goedemorgen, Mumu!"},
+    {fi:"Kiitos paljon kakusta.", nl:"Hartelijk dank voor de taart."},
   ]},
-  {g:"Kennismaken", items:[
+  {g:"Kennismaken", focus:"Jezelf voorstellen: naam, herkomst, hoe gaat het.", items:[
     {fi:"Mitä kuuluu?", nl:"Hoe gaat het?"},
     {fi:"Hyvää, kiitos", nl:"Goed, dank je"},
     {fi:"Mikä sinun nimesi on?", nl:"Hoe heet je?"},
@@ -269,8 +285,11 @@ const DATA = [
     {fi:"Puhutko englantia?", nl:"Spreek je Engels?"},
     {fi:"En ymmärrä", nl:"Ik begrijp het niet"},
     {fi:"Puhu hitaasti, kiitos", nl:"Spreek langzaam, alsjeblieft"},
+  ], zinnen:[
+    {fi:"Hauska tutustua, olen Mertenin veli.", nl:"Leuk je te ontmoeten, ik ben Mertens broer."},
+    {fi:"Tulen Hollannista, mutta perhe on suomalainen.", nl:"Ik kom uit Nederland, maar de familie is Fins."},
   ]},
-  {g:"Grillaus ja olut", items:[
+  {g:"Grillaus ja olut", focus:"BBQ-woorden; 'minulla on' = ik heb.", items:[
     {fi:"grillata", nl:"barbecueën"},
     {fi:"makkara", nl:"worst", note:"klassiek op de Finse grill"},
     {fi:"liha", nl:"vlees"},
@@ -284,8 +303,11 @@ const DATA = [
     {fi:"Hyvää ruokahalua", nl:"Eet smakelijk"},
     {fi:"Otatko oluen?", nl:"Wil je een biertje?", note:"oluen = accusatief"},
     {fi:"vielä yksi makkara", nl:"nog één worst"},
+  ], zinnen:[
+    {fi:"Minulla on nälkä, missä makkara on?", nl:"Ik heb honger, waar is de worst?"},
+    {fi:"Otatko vielä yhden oluen?", nl:"Neem je nog een biertje?"},
   ]},
-  {g:"Vraagwoorden", items:[
+  {g:"Vraagwoorden", focus:"Vraagwoorden: wat, wie, waar, wanneer, hoe.", items:[
     {fi:"Mikä?", nl:"Wat / welk?"},
     {fi:"Kuka?", nl:"Wie?"},
     {fi:"Missä?", nl:"Waar?"},
@@ -293,8 +315,11 @@ const DATA = [
     {fi:"Miksi?", nl:"Waarom?"},
     {fi:"Miten?", nl:"Hoe?"},
     {fi:"Paljonko?", nl:"Hoeveel?"},
+  ], zinnen:[
+    {fi:"Missä Co'tje on nyt?", nl:"Waar is Co'tje nu?"},
+    {fi:"Milloin Sirpa paistaa kakun?", nl:"Wanneer bakt Sirpa de taart?"},
   ]},
-  {g:"Getallen 0 tot 10", items:[
+  {g:"Getallen 0 tot 10", focus:"Tellen van 0 tot 10.", items:[
     {fi:"nolla", nl:"nul"},
     {fi:"yksi", nl:"een"},
     {fi:"kaksi", nl:"twee"},
@@ -306,8 +331,11 @@ const DATA = [
     {fi:"kahdeksan", nl:"acht"},
     {fi:"yhdeksän", nl:"negen"},
     {fi:"kymmenen", nl:"tien"},
+  ], zinnen:[
+    {fi:"Meitä on kuusi saunassa.", nl:"We zijn met z'n zessen in de sauna."},
+    {fi:"Kaksi olutta, kiitos.", nl:"Twee bier, alsjeblieft."},
   ]},
-  {g:"Sauna ja uinti", items:[
+  {g:"Sauna ja uinti", focus:"Sauna en zwemmen; gebiedende wijs (mene, hyppää).", items:[
     {fi:"kiuas", nl:"saunakachel"},
     {fi:"vihta", nl:"berkentwijg", note:"om jezelf zacht mee te slaan; in het oosten: vasta"},
     {fi:"hiki", nl:"zweet"},
@@ -321,8 +349,11 @@ const DATA = [
     {fi:"alaston", nl:"naakt", note:"in de sauna doodnormaal"},
     {fi:"Onko sinulla kuuma?", nl:"Heb je het warm?"},
     {fi:"Ihana löyly", nl:"Heerlijke saunadamp"},
+  ], zinnen:[
+    {fi:"Löyly on liian kuuma Jarnolle.", nl:"De saunadamp is te heet voor Jarno."},
+    {fi:"Hyppää järveen ja vilvoittele!", nl:"Spring in het meer en koel af!"},
   ]},
-  {g:"Getallen 11 tot 100", items:[
+  {g:"Getallen 11 tot 100", focus:"Grotere getallen 11-100: '-toista' en '-kymmentä'.", items:[
     {fi:"yksitoista", nl:"elf", note:"-toista = -tien (11 t/m 19)"},
     {fi:"kaksitoista", nl:"twaalf"},
     {fi:"kolmetoista", nl:"dertien"},
@@ -337,8 +368,11 @@ const DATA = [
     {fi:"neljäkymmentä", nl:"veertig"},
     {fi:"viisikymmentä", nl:"vijftig"},
     {fi:"sata", nl:"honderd"},
+  ], zinnen:[
+    {fi:"Sauna on kahdeksankymmentä astetta.", nl:"De sauna is tachtig graden."},
+    {fi:"Mökille on kaksikymmentä kilometriä.", nl:"Naar het zomerhuis is het twintig kilometer."},
   ]},
-  {g:"Kleuren", items:[
+  {g:"Kleuren", focus:"Kleuren; het bijvoeglijk naamwoord staat vóór het zelfstandig naamwoord.", items:[
     {fi:"väri", nl:"kleur"},
     {fi:"punainen", nl:"rood"},
     {fi:"sininen", nl:"blauw"},
@@ -353,8 +387,12 @@ const DATA = [
     {fi:"violetti", nl:"paars"},
     {fi:"Mikä väri?", nl:"Welke kleur?"},
     {fi:"minkä värinen?", nl:"welke kleur heeft het?", note:"vraagvorm met -nen"},
+  ], zinnen:[
+    {fi:"Co'tje on punainen vene.", nl:"Co'tje is een rode boot."},
+    {fi:"Sirpan kakku on vaaleanpunainen.", nl:"Sirpa's taart is roze."},
+    {fi:"Järvi näyttää siniseltä illalla.", nl:"Het meer ziet er 's avonds blauw uit."},
   ]},
-  {g:"Vesillä Tampereelle", items:[
+  {g:"Vesillä Tampereelle", focus:"Op het water; richting '-lle' (naar) en plek '-lla' (op).", items:[
     {fi:"vene", nl:"boot", note:"Co'tje vaart weer uit"},
     {fi:"järvi", nl:"meer"},
     {fi:"ranta", nl:"oever"},
@@ -368,8 +406,12 @@ const DATA = [
     {fi:"Olemme perillä", nl:"We zijn er"},
     {fi:"Mennään Tampereelle", nl:"We gaan naar Tampere", note:"Tampereelle = naar (allatief)"},
     {fi:"kaunis maisema", nl:"mooi uitzicht"},
+  ], zinnen:[
+    {fi:"Lähdemme veneellä Tampereelle.", nl:"We gaan met de boot naar Tampere."},
+    {fi:"Pue pelastusliivit, poliisi voi tulla.", nl:"Doe je zwemvest aan, de politie kan komen."},
+    {fi:"Jarnolla on jo yksi sakko.", nl:"Jarno heeft al één boete."},
   ]},
-  {g:"Dagen en maanden", items:[
+  {g:"Dagen en maanden", focus:"Dagen en maanden; '-na' voor dagen (maanantaina = op maandag).", items:[
     {fi:"maanantai", nl:"maandag"},
     {fi:"tiistai", nl:"dinsdag"},
     {fi:"keskiviikko", nl:"woensdag", note:"letterlijk: middenweek"},
@@ -385,8 +427,12 @@ const DATA = [
     {fi:"tammikuu", nl:"januari", note:"-kuu = maand"},
     {fi:"kesäkuu", nl:"juni"},
     {fi:"joulukuu", nl:"december"},
+  ], zinnen:[
+    {fi:"Maanantaina Jarno lentää takaisin Suomeen.", nl:"Op maandag vliegt Jarno terug naar Finland."},
+    {fi:"Lauantaina on aina sauna ja olut.", nl:"Op zaterdag is er altijd sauna en bier."},
+    {fi:"Kesäkuussa olemme kaikki mökillä.", nl:"In juni zijn we allemaal op het zomerhuis."},
   ]},
-  {g:"Tijd en klok", items:[
+  {g:"Tijd en klok", focus:"Tijd en klok; 'kello on' en de Finse 'puoli' (telt naar het volgende uur).", items:[
     {fi:"kello", nl:"klok / uur"},
     {fi:"Paljonko kello on?", nl:"Hoe laat is het?"},
     {fi:"kello on yksi", nl:"het is één uur"},
@@ -400,8 +446,12 @@ const DATA = [
     {fi:"yö", nl:"nacht"},
     {fi:"nyt", nl:"nu"},
     {fi:"aamulla", nl:"'s ochtends", note:"-lla = om/in de"},
+  ], zinnen:[
+    {fi:"Paljonko kello on? Sauna alkaa kohta.", nl:"Hoe laat is het? De sauna begint zo."},
+    {fi:"Puoli kaksi tarkoittaa 13:30 Suomessa.", nl:"'Puoli kaksi' betekent 13:30 in Finland."},
+    {fi:"Nähdään kello kuusi laiturilla.", nl:"We zien elkaar om zes uur bij de steiger."},
   ]},
-  {g:"Wakeboard ja vauhti", items:[
+  {g:"Wakeboard ja vauhti", focus:"Snelheid en sport; 'liian' = te (veel), 'mieluummin' = liever.", items:[
     {fi:"wakeboard", nl:"wakeboard"},
     {fi:"lauta", nl:"plank / board"},
     {fi:"köysi", nl:"touw"},
@@ -415,8 +465,12 @@ const DATA = [
     {fi:"taas uudestaan", nl:"nog een keer"},
     {fi:"Hyvä veto!", nl:"Goeie poging!"},
     {fi:"Oli hauskaa", nl:"Het was leuk"},
+  ], zinnen:[
+    {fi:"Jarno ei osaa wakeboardata.", nl:"Jarno kan niet wakeboarden."},
+    {fi:"Hän istuu mieluummin renkaassa.", nl:"Hij zit liever in de band."},
+    {fi:"Vauhti on liian kova, pidä kiinni!", nl:"De vaart is te hoog, hou vast!"},
   ]},
-  {g:"Werkwoorden (ik-vorm)", items:[
+  {g:"Werkwoorden (ik-vorm)", focus:"Werkwoorden in de ik-vorm (minä-vorm).", items:[
     {fi:"olen", nl:"ik ben"},
     {fi:"menen", nl:"ik ga"},
     {fi:"tulen", nl:"ik kom"},
@@ -429,8 +483,12 @@ const DATA = [
     {fi:"näen", nl:"ik zie"},
     {fi:"asun", nl:"ik woon"},
     {fi:"rakastan", nl:"ik hou van"},
+  ], zinnen:[
+    {fi:"Minä laitan grillin päälle.", nl:"Ik steek de barbecue aan."},
+    {fi:"Minä uin joka aamu järvessä.", nl:"Ik zwem elke ochtend in het meer."},
+    {fi:"Minä juon kahvia Mumun kanssa.", nl:"Ik drink koffie met Mumu."},
   ]},
-  {g:"Dagelijkse zinnen", items:[
+  {g:"Dagelijkse zinnen", focus:"Handige zinnen voor elke dag.", items:[
     {fi:"Haluan kahvia", nl:"Ik wil koffie", note:"kahvi → kahvia (partitief)"},
     {fi:"Minulla on nälkä", nl:"Ik heb honger", note:"letterlijk: bij mij is honger"},
     {fi:"Minulla on jano", nl:"Ik heb dorst"},
@@ -440,8 +498,12 @@ const DATA = [
     {fi:"Asun Amsterdamissa", nl:"Ik woon in Amsterdam", note:"-ssa = in (naamval)"},
     {fi:"Minulla on tytär", nl:"Ik heb een dochter"},
     {fi:"Rakastan sinua", nl:"Ik hou van jou"},
+  ], zinnen:[
+    {fi:"Anteeksi, voitko puhua hitaammin?", nl:"Sorry, kun je langzamer praten?"},
+    {fi:"Ei hätää, kaikki on hyvin.", nl:"Geen zorgen, alles is goed."},
+    {fi:"Nähdään illalla saunassa!", nl:"Tot vanavond in de sauna!"},
   ]},
-  {g:"Veneily ja vetorengas", items:[
+  {g:"Veneily ja vetorengas", focus:"Varen en de tube; vergelijken met 'mieluummin' (liever).", items:[
     {fi:"veneily", nl:"varen / het water op"},
     {fi:"vene", nl:"boot", note:"Co'tje trekt"},
     {fi:"vetorengas", nl:"tube / band achter de boot", note:"Jarno's plek: wakeboarden lukt hem niet"},
@@ -457,8 +519,12 @@ const DATA = [
     {fi:"rauhassa", nl:"rustig aan", note:"liever rustig in de band dan staand op de plank"},
     {fi:"taas uudestaan", nl:"nog een keer"},
     {fi:"Oliko hauskaa?", nl:"Was het leuk?"},
+  ], zinnen:[
+    {fi:"Jarno ei seiso laudalla, hän istuu renkaassa.", nl:"Jarno staat niet op de plank, hij zit in de band."},
+    {fi:"Pidä kiinni äläkä päästä irti!", nl:"Hou vast en laat niet los!"},
+    {fi:"Oliko hauskaa? Otetaan vielä yksi kierros.", nl:"Was het leuk? We doen nog een rondje."},
   ]},
-  {g:"Eten en drinken", items:[
+  {g:"Eten en drinken", focus:"Eten en drinken; partitief bij hoeveelheden.", items:[
     {fi:"ruoka", nl:"eten"},
     {fi:"juoma", nl:"drinken"},
     {fi:"leipä", nl:"brood"},
@@ -473,8 +539,12 @@ const DATA = [
     {fi:"liha", nl:"vlees"},
     {fi:"peruna", nl:"aardappel"},
     {fi:"mehu", nl:"sap"},
+  ], zinnen:[
+    {fi:"Saanko leipää ja juustoa?", nl:"Mag ik brood en kaas?"},
+    {fi:"Mumu tekee parasta ruokaa.", nl:"Mumu maakt het lekkerste eten."},
+    {fi:"Juon mieluummin maitoa kuin olutta.", nl:"Ik drink liever melk dan bier."},
   ]},
-  {g:"In het café", items:[
+  {g:"In het café", focus:"Bestellen in een café; beleefd vragen met 'saisinko'.", items:[
     {fi:"Saanko...?", nl:"Mag ik...?", note:"beleefd bestellen"},
     {fi:"Saisinko kahvin?", nl:"Mag ik een koffie?", note:"nog beleefder (conditionalis)"},
     {fi:"yksi kahvi, kiitos", nl:"één koffie, alsjeblieft"},
@@ -488,8 +558,12 @@ const DATA = [
     {fi:"Mitä saisi olla?", nl:"Wat mag het zijn?"},
     {fi:"lasku, kiitos", nl:"de rekening, alsjeblieft"},
     {fi:"tässä", nl:"hier (bij aanreiken)"},
+  ], zinnen:[
+    {fi:"Saisinko yhden kahvin ja pullan?", nl:"Mag ik een koffie en een kaneelbroodje?"},
+    {fi:"Onko teillä Sirpan kakkua?", nl:"Hebben jullie taart van Sirpa?"},
+    {fi:"Lasku, kiitos, Jarno tarjoaa.", nl:"De rekening, alsjeblieft, Jarno trakteert."},
   ]},
-  {g:"Karaoke ja baari", items:[
+  {g:"Karaoke ja baari", focus:"Uitgaan en karaoke; uitnodigen met 'mennäänkö'.", items:[
     {fi:"baari", nl:"bar"},
     {fi:"karaoke", nl:"karaoke"},
     {fi:"laulaa", nl:"zingen"},
@@ -503,8 +577,12 @@ const DATA = [
     {fi:"vielä yksi laulu", nl:"nog één lied"},
     {fi:"Oli hauskaa", nl:"Het was leuk"},
     {fi:"väsynyt", nl:"moe", note:"na de laatste karaoke"},
+  ], zinnen:[
+    {fi:"Mennäänkö karaokeen Tampereelle?", nl:"Zullen we karaoken in Tampere?"},
+    {fi:"Jarnon ääni ei ole kaunis, mutta hauska.", nl:"Jarno's stem is niet mooi, maar grappig."},
+    {fi:"Yksi tuoppi vielä, sitten kotiin.", nl:"Nog één pul, dan naar huis."},
   ]},
-  {g:"Boodschappen doen", items:[
+  {g:"Boodschappen doen", focus:"Boodschappen en betalen; 'paljonko' = hoeveel.", items:[
     {fi:"kauppa", nl:"winkel"},
     {fi:"ostaa", nl:"kopen"},
     {fi:"maksaa", nl:"betalen / kosten"},
@@ -519,8 +597,12 @@ const DATA = [
     {fi:"käteinen", nl:"contant geld"},
     {fi:"kuitti", nl:"kassabon"},
     {fi:"alennus", nl:"korting"},
+  ], zinnen:[
+    {fi:"Paljonko nämä makkarat maksavat?", nl:"Hoeveel kosten deze worsten?"},
+    {fi:"Maksan kortilla, ei käteistä.", nl:"Ik betaal met kaart, geen contant."},
+    {fi:"Ostetaan olutta koko viikonlopuksi.", nl:"We kopen bier voor het hele weekend."},
   ]},
-  {g:"Het lichaam", items:[
+  {g:"Het lichaam", focus:"Lichaamsdelen; 'minulla on ... kipeä' = ik heb pijn aan.", items:[
     {fi:"keho", nl:"lichaam"},
     {fi:"pää", nl:"hoofd"},
     {fi:"silmä", nl:"oog"},
@@ -536,8 +618,12 @@ const DATA = [
     {fi:"sydän", nl:"hart"},
     {fi:"hiukset", nl:"haar", note:"altijd meervoud"},
     {fi:"päänsärky", nl:"hoofdpijn"},
+  ], zinnen:[
+    {fi:"Minulla on päänsärky saunan jälkeen.", nl:"Ik heb hoofdpijn na de sauna."},
+    {fi:"Selkä on kipeä wakeboardista.", nl:"M'n rug doet zeer van het wakeboarden."},
+    {fi:"Pese kädet ennen ruokaa.", nl:"Was je handen voor het eten."},
   ]},
-  {g:"Pokeri-ilta", items:[
+  {g:"Pokeri-ilta", focus:"Pokeravond; vraagwoord 'kuka' (wie), winnen en verliezen.", items:[
     {fi:"pokeri", nl:"poker"},
     {fi:"kortit", nl:"de kaarten"},
     {fi:"jakaa", nl:"delen (kaarten)"},
@@ -551,8 +637,12 @@ const DATA = [
     {fi:"pelimerkki", nl:"fiche"},
     {fi:"isä", nl:"vader", note:"Klaas speelt mee en wil altijd winnen"},
     {fi:"Kuka voitti?", nl:"Wie heeft gewonnen?"},
+  ], zinnen:[
+    {fi:"Kuka jakaa kortit tällä kierroksella?", nl:"Wie deelt de kaarten deze ronde?"},
+    {fi:"Klaas bluffaa taas, älä usko häntä.", nl:"Klaas bluft weer, geloof hem niet."},
+    {fi:"Minä luovutan, teillä on liikaa onnea.", nl:"Ik geef op, jullie hebben te veel geluk."},
   ]},
-  {g:"Kleding", items:[
+  {g:"Kleding", focus:"Kleding; meervoudswoorden zoals housut en kengät.", items:[
     {fi:"vaatteet", nl:"kleren", note:"meervoud"},
     {fi:"paita", nl:"shirt"},
     {fi:"housut", nl:"broek", note:"altijd meervoud"},
@@ -567,8 +657,12 @@ const DATA = [
     {fi:"huivi", nl:"sjaal"},
     {fi:"pukea", nl:"aankleden"},
     {fi:"Mitä puet päälle?", nl:"Wat trek je aan?"},
+  ], zinnen:[
+    {fi:"Ota lämmin takki, illalla on kylmä.", nl:"Neem een warme jas, 's avonds is het koud."},
+    {fi:"Missä minun uimahousut ovat?", nl:"Waar is mijn zwembroek?"},
+    {fi:"Saunassa ei tarvita vaatteita.", nl:"In de sauna heb je geen kleren nodig."},
   ]},
-  {g:"Het weer", items:[
+  {g:"Het weer", focus:"Weer; werkwoorden sataa (regenen), tuulee (waaien), paistaa (schijnen).", items:[
     {fi:"sää", nl:"weer"},
     {fi:"Millainen sää on?", nl:"Wat voor weer is het?"},
     {fi:"aurinko paistaa", nl:"de zon schijnt"},
@@ -583,8 +677,12 @@ const DATA = [
     {fi:"lumi", nl:"sneeuw"},
     {fi:"sade", nl:"regen"},
     {fi:"ukkonen", nl:"onweer"},
+  ], zinnen:[
+    {fi:"Tänään aurinko paistaa, mennään järvelle.", nl:"Vandaag schijnt de zon, we gaan naar het meer."},
+    {fi:"Jos sataa, grillataan katon alla.", nl:"Als het regent, barbecueën we onder het afdak."},
+    {fi:"Talvella on pakkasta ja lunta.", nl:"In de winter is er vorst en sneeuw."},
   ]},
-  {g:"Mummo, Mumu ja kakku", items:[
+  {g:"Mummo, Mumu ja kakku", focus:"Oma en de taart; '-lle' (voor wie) en lekker eten.", items:[
     {fi:"mummo", nl:"oma", note:"jullie Mummo / Mumu = Sirpa"},
     {fi:"lapset", nl:"de kinderen", note:"Mummo vermaakt ze de hele dag"},
     {fi:"leipoa", nl:"bakken", note:"Sirpa bakt taart voor jullie"},
@@ -597,8 +695,13 @@ const DATA = [
     {fi:"Maistuu hyvältä", nl:"Het smaakt lekker"},
     {fi:"vielä pala", nl:"nog een stukje"},
     {fi:"Kiitos Mummo", nl:"Bedankt oma"},
+  ], zinnen:[
+    {fi:"Mumu paistaa kakun lapsille.", nl:"Mumu bakt een taart voor de kinderen."},
+    {fi:"Mummo lukee sadun ennen nukkumaanmenoa.", nl:"Oma leest een sprookje voor het slapengaan."},
+    {fi:"Kakku maistuu taivaalliselta.", nl:"De taart smaakt hemels."},
+    {fi:"Kiitos Mumu, otan vielä yhden palan.", nl:"Bedankt Mumu, ik neem nog een stukje."},
   ]},
-  {g:"Het huis en kamers", items:[
+  {g:"Het huis en kamers", focus:"Huis en kamers; '-ssa' (in) per ruimte.", items:[
     {fi:"talo", nl:"huis (gebouw)"},
     {fi:"koti", nl:"thuis"},
     {fi:"huone", nl:"kamer"},
@@ -613,8 +716,12 @@ const DATA = [
     {fi:"seinä", nl:"muur"},
     {fi:"piha", nl:"tuin / erf"},
     {fi:"avain", nl:"sleutel"},
+  ], zinnen:[
+    {fi:"Sauna on talon vieressä.", nl:"De sauna staat naast het huis."},
+    {fi:"Lapset nukkuvat makuuhuoneessa.", nl:"De kinderen slapen in de slaapkamer."},
+    {fi:"Avain on oven vieressä.", nl:"De sleutel ligt naast de deur."},
   ]},
-  {g:"Familie en thuis", items:[
+  {g:"Familie en thuis", focus:"Familie en thuis; bezit met minun, sinun, meidän.", items:[
     {fi:"äiti", nl:"mama"},
     {fi:"isä", nl:"papa"},
     {fi:"mummo", nl:"oma"},
@@ -634,8 +741,13 @@ const DATA = [
     {fi:"mökki", nl:"zomerhuisje", note:"Fins begrip: huisje aan het water"},
     {fi:"metsä", nl:"bos"},
     {fi:"kiitos ruoasta", nl:"bedankt voor het eten", note:"zeg je na de maaltijd"},
+  ], zinnen:[
+    {fi:"Sirpa on meidän äiti, lapset sanovat Mumu.", nl:"Sirpa is onze moeder, de kinderen zeggen Mumu."},
+    {fi:"Klaas on isä ja paras pokerinpelaaja.", nl:"Klaas is vader en de beste pokerspeler."},
+    {fi:"Meidän mökki on perheen sydän.", nl:"Ons zomerhuis is het hart van de familie."},
+    {fi:"Rakastan teitä kaikkia.", nl:"Ik hou van jullie allemaal."},
   ]},
-  {g:"Jääkiekko, jalkapallo, F1", items:[
+  {g:"Jääkiekko, jalkapallo, F1", focus:"Sport en Finse helden; supporteren.", items:[
     {fi:"jääkiekko", nl:"ijshockey", note:"Finse NHL-helden: Teemu Selänne, Patrik Laine"},
     {fi:"kiekko", nl:"puck"},
     {fi:"jalkapallo", nl:"voetbal", note:"legende: Jari Litmanen"},
@@ -649,8 +761,13 @@ const DATA = [
     {fi:"tuomari", nl:"scheidsrechter"},
     {fi:"Hyvä Suomi!", nl:"Kom op Finland!"},
     {fi:"Suomi voittaa!", nl:"Finland wint!"},
+  ], zinnen:[
+    {fi:"Suomi voitti jääkiekon maailmanmestaruuden!", nl:"Finland won het WK ijshockey!"},
+    {fi:"Räikkönen oli Klaasin suosikkikuljettaja.", nl:"Räikkönen was Klaas' favoriete coureur."},
+    {fi:"Katsotaan ottelu yhdessä mökillä.", nl:"We kijken de wedstrijd samen op het zomerhuis."},
+    {fi:"Hyvä Suomi, maali tulee kohta!", nl:"Kom op Finland, het doelpunt komt zo!"},
   ]},
-  {g:"Kids (samen)", items:[
+  {g:"Kids (samen)", focus:"Samen met de kinderen; gebiedende wijs en spelen.", items:[
     {fi:"Hyvää huomenta, kulta", nl:"Goedemorgen, lieverd"},
     {fi:"Onko sinulla nälkä?", nl:"Heb je honger?"},
     {fi:"Aamupala on valmis", nl:"Het ontbijt is klaar"},
@@ -667,8 +784,13 @@ const DATA = [
     {fi:"koira", nl:"hond"},
     {fi:"kissa", nl:"kat"},
     {fi:"karhu", nl:"beer"},
+  ], zinnen:[
+    {fi:"Tule, leikitään yhdessä pihalla!", nl:"Kom, we spelen samen in de tuin!"},
+    {fi:"Kuka uskaltaa hypätä järveen ensin?", nl:"Wie durft als eerste in het meer te springen?"},
+    {fi:"Ole varovainen laiturilla.", nl:"Wees voorzichtig op de steiger."},
+    {fi:"Hyvää yötä, nuku hyvin.", nl:"Welterusten, slaap lekker."},
   ]},
-  {g:"In de stad", items:[
+  {g:"In de stad", focus:"In de stad; de weg vragen met 'missä on'.", items:[
     {fi:"kaupunki", nl:"stad"},
     {fi:"katu", nl:"straat"},
     {fi:"tori", nl:"marktplein"},
@@ -683,8 +805,13 @@ const DATA = [
     {fi:"puisto", nl:"park"},
     {fi:"Missä on...?", nl:"Waar is...?"},
     {fi:"vasemmalle", nl:"naar links", note:"oikealle = naar rechts"},
+  ], zinnen:[
+    {fi:"Anteeksi, missä on lähin kahvila?", nl:"Sorry, waar is het dichtstbijzijnde café?"},
+    {fi:"Kirjasto on torin vieressä.", nl:"De bibliotheek staat naast het marktplein."},
+    {fi:"Käänny vasemmalle ja jatka suoraan.", nl:"Sla linksaf en ga rechtdoor."},
+    {fi:"Tampere on kaunis kaupunki kahden järven välissä.", nl:"Tampere is een mooie stad tussen twee meren."},
   ]},
-  {g:"Töissä Waldorfissa", items:[
+  {g:"Töissä Waldorfissa", focus:"Werk-Fins in het hotel; gasten beleefd helpen.", items:[
     {fi:"hotelli", nl:"hotel", note:"Jarno ruilt Hilton voor het Waldorf"},
     {fi:"vastaanotto", nl:"receptie"},
     {fi:"asiakas", nl:"gast / klant"},
@@ -698,8 +825,13 @@ const DATA = [
     {fi:"lasku", nl:"de rekening"},
     {fi:"Mukavaa matkaa", nl:"Goede reis"},
     {fi:"Kiitos käynnistä", nl:"Bedankt voor uw bezoek"},
+  ], zinnen:[
+    {fi:"Tervetuloa Waldorfiin, kuinka voin auttaa?", nl:"Welkom in het Waldorf, hoe kan ik u helpen?"},
+    {fi:"Hetkinen, tarkistan varauksenne.", nl:"Een momentje, ik controleer uw reservering."},
+    {fi:"Aamiainen on kello seitsemästä kymmeneen.", nl:"Het ontbijt is van zeven tot tien uur."},
+    {fi:"Mukavaa matkaa ja kiitos käynnistä!", nl:"Goede reis en bedankt voor uw bezoek!"},
   ]},
-  {g:"Reizen en vervoer", items:[
+  {g:"Reizen en vervoer", focus:"Reizen en vervoer; richting met '-lle' en '-een'.", items:[
     {fi:"matka", nl:"reis"},
     {fi:"juna", nl:"trein"},
     {fi:"bussi", nl:"bus"},
@@ -714,8 +846,13 @@ const DATA = [
     {fi:"mennä", nl:"gaan"},
     {fi:"tulla", nl:"komen"},
     {fi:"Mihin menet?", nl:"Waar ga je heen?", note:"-hin = naar (richting)"},
+  ], zinnen:[
+    {fi:"Jarno lentää Helsinkiin joka kuukausi.", nl:"Jarno vliegt elke maand naar Helsinki."},
+    {fi:"Juna Tampereelle lähtee kohta.", nl:"De trein naar Tampere vertrekt zo."},
+    {fi:"Matkalaukku on taas liian painava.", nl:"De koffer is weer te zwaar."},
+    {fi:"Mihin menemme ensi viikonloppuna?", nl:"Waar gaan we volgend weekend heen?"},
   ]},
-  {g:"Hobby's en vrije tijd", items:[
+  {g:"Hobby's en vrije tijd", focus:"Hobby's; 'pelata' vs 'leikkiä', en 'soittaa' (bespelen/bellen).", items:[
     {fi:"harrastus", nl:"hobby"},
     {fi:"lukea", nl:"lezen"},
     {fi:"kirjoittaa", nl:"schrijven"},
@@ -730,8 +867,13 @@ const DATA = [
     {fi:"katsoa televisiota", nl:"tv kijken", note:"object in partitief: televisiota"},
     {fi:"musiikki", nl:"muziek"},
     {fi:"valokuvata", nl:"fotograferen"},
+  ], zinnen:[
+    {fi:"Harrastan uintia ja saunomista.", nl:"Mijn hobby is zwemmen en saunaën."},
+    {fi:"Soitan kitaraa nuotiolla illalla.", nl:"Ik speel gitaar bij het kampvuur 's avonds."},
+    {fi:"Pelataan korttia, kun sataa.", nl:"We spelen kaarten als het regent."},
+    {fi:"Rikkert halaa puita metsässä.", nl:"Rikkert knuffelt bomen in het bos."},
   ]},
-  {g:"Muumi-mukit ja astiasto", items:[
+  {g:"Muumi-mukit ja astiasto", focus:"Servies en Moomin; voorzichtig met dure spullen.", items:[
     {fi:"muki", nl:"mok", note:"jullie Moomin-mukit"},
     {fi:"Muumi", nl:"Moomin"},
     {fi:"astiasto", nl:"servies", note:"duur Fins servies: Iittala / Arabia"},
@@ -745,8 +887,13 @@ const DATA = [
     {fi:"Varovasti!", nl:"Voorzichtig!"},
     {fi:"kaunis", nl:"mooi"},
     {fi:"lahja", nl:"cadeau"},
+  ], zinnen:[
+    {fi:"Älä pudota Mumun Muumi-mukia!", nl:"Laat Mumu's Moomin-mok niet vallen!"},
+    {fi:"Astiasto on arvokas, pese se varovasti.", nl:"Het servies is kostbaar, was het voorzichtig."},
+    {fi:"Kahvi maistuu paremmalta Muumi-mukista.", nl:"Koffie smaakt beter uit een Moomin-mok."},
+    {fi:"Tämä lautanen on lahja Sirpalta.", nl:"Dit bord is een cadeau van Sirpa."},
   ]},
-  {g:"Dieren", items:[
+  {g:"Dieren", focus:"Dieren; typisch Finse dieren zoals poro (rendier) en karhu (beer).", items:[
     {fi:"eläin", nl:"dier"},
     {fi:"koira", nl:"hond"},
     {fi:"kissa", nl:"kat"},
@@ -761,8 +908,13 @@ const DATA = [
     {fi:"hiiri", nl:"muis"},
     {fi:"orava", nl:"eekhoorn"},
     {fi:"hyttynen", nl:"mug", note:"berucht in de Finse zomer"},
+  ], zinnen:[
+    {fi:"Metsässä voi nähdä poron tai jäniksen.", nl:"In het bos kun je een rendier of haas zien."},
+    {fi:"Hyttyset ovat pahimmat kesällä.", nl:"De muggen zijn het ergst in de zomer."},
+    {fi:"Karhu on Suomen kansalliseläin.", nl:"De beer is Finlands nationale dier."},
+    {fi:"Naapurin koira ui myös järvessä.", nl:"De hond van de buur zwemt ook in het meer."},
   ]},
-  {g:"Gevoelens", items:[
+  {g:"Gevoelens", focus:"Gevoelens; 'olen + bijvoeglijk' en 'miltä sinusta tuntuu'.", items:[
     {fi:"tunne", nl:"gevoel"},
     {fi:"iloinen", nl:"blij"},
     {fi:"surullinen", nl:"verdrietig"},
@@ -777,8 +929,13 @@ const DATA = [
     {fi:"rakastua", nl:"verliefd worden"},
     {fi:"Miltä sinusta tuntuu?", nl:"Hoe voel je je?"},
     {fi:"Olen iloinen", nl:"Ik ben blij"},
+  ], zinnen:[
+    {fi:"Olen onnellinen, kun koko perhe on mökillä.", nl:"Ik ben gelukkig als de hele familie er is."},
+    {fi:"Jarno on väsynyt mutta iloinen karaoken jälkeen.", nl:"Jarno is moe maar blij na de karaoke."},
+    {fi:"Miltä sinusta tuntuu tänään?", nl:"Hoe voel je je vandaag?"},
+    {fi:"Olen innoissani viikonlopusta!", nl:"Ik ben enthousiast over het weekend!"},
   ]},
-  {g:"Naapurit: Tarja ja Gerard", items:[
+  {g:"Naapurit: Tarja ja Gerard", focus:"Buren en beleefd op bezoek; 'oli hyvää' (het was lekker).", items:[
     {fi:"naapuri", nl:"buur", note:"Tarja en Gerard, 's zomers bij Vesilahti"},
     {fi:"kylään", nl:"op bezoek", note:"mennä kylään = op bezoek gaan"},
     {fi:"kakku", nl:"taart", note:"Tarja's befaamde taarten..."},
@@ -791,8 +948,13 @@ const DATA = [
     {fi:"juttu", nl:"praatje"},
     {fi:"terveiset", nl:"de groeten"},
     {fi:"Nähdään pian", nl:"Tot snel"},
+  ], zinnen:[
+    {fi:"Naapurit Tarja ja Gerard tulevat kylään.", nl:"De buren Tarja en Gerard komen op bezoek."},
+    {fi:"Tarja toi taas yhden kakun.", nl:"Tarja bracht alweer een taart mee."},
+    {fi:"Sano kohteliaasti: oli oikein hyvää.", nl:"Zeg beleefd: het was echt lekker."},
+    {fi:"Juodaan kahvit ja jutellaan hetki.", nl:"We drinken koffie en kletsen even."},
   ]},
-  {g:"Metsä, puut ja Rikkert", items:[
+  {g:"Metsä, puut ja Rikkert", focus:"Bos en natuur; objecten in de partitief.", items:[
     {fi:"metsä", nl:"bos"},
     {fi:"puu", nl:"boom", note:"Rikkert knuffelt ze graag"},
     {fi:"halata puuta", nl:"een boom knuffelen", note:"puuta = partitief object"},
@@ -806,6 +968,11 @@ const DATA = [
     {fi:"rauhallinen", nl:"rustig"},
     {fi:"Mennään metsään", nl:"We gaan het bos in", note:"metsään = illatief"},
     {fi:"retki", nl:"uitstapje"},
+  ], zinnen:[
+    {fi:"Mennään metsään poimimaan mustikoita.", nl:"We gaan het bos in om bosbessen te plukken."},
+    {fi:"Rikkert halaa taas yhtä isoa puuta.", nl:"Rikkert knuffelt weer een grote boom."},
+    {fi:"Metsässä on hiljaista ja rauhallista.", nl:"In het bos is het stil en rustig."},
+    {fi:"Raikas ilma tekee hyvää koko perheelle.", nl:"De frisse lucht doet de hele familie goed."},
   ]},
 ];
 
@@ -847,16 +1014,14 @@ function dateLabel(){
 }
 function weekIndex(){ return Math.floor(dayIndex()/7); }
 const WEEK_PROMPTS = [
-  {fi:"Hei! Harjoittelen suomea", nl:"Hoi! Ik oefen Fins"},
-  {fi:"Mitä kuuluu?", nl:"Hoe gaat het?"},
-  {fi:"Tänään oli hyvä päivä", nl:"Vandaag was een goede dag"},
-  {fi:"Opetan lapsille suomea", nl:"Ik leer de kinderen Fins"},
-  {fi:"Ikävä sinua", nl:"Ik mis je"},
-  {fi:"Milloin nähdään?", nl:"Wanneer zien we elkaar?"},
-  {fi:"Rakastan teitä", nl:"Ik hou van jullie"},
-  {fi:"Kiitos kaikesta", nl:"Bedankt voor alles"},
-  {fi:"Söimme tänään hyvin", nl:"We hebben vandaag lekker gegeten"},
-  {fi:"Haluan oppia lisää", nl:"Ik wil meer leren"},
+  {fi:"Hei Mumu! Harjoittelen suomea joka päivä ja muistan sinua.", nl:"Hoi Mumu! Ik oefen elke dag Fins en denk aan je."},
+  {fi:"Tänään oli hyvä päivä: saunoimme ja söimme sinun kakkuasi.", nl:"Vandaag was een goede dag: we saunaden en aten jouw taart."},
+  {fi:"Milloin näemme taas? Ikävä sinua ja mökkiä Vesilahdessa.", nl:"Wanneer zien we elkaar weer? Ik mis jou en het huis in Vesilahti."},
+  {fi:"Opetan lapsille suomea, he osaavat jo sanoa Mumu ja kiitos.", nl:"Ik leer de kinderen Fins, ze kunnen al 'Mumu' en 'dank je' zeggen."},
+  {fi:"Kiitos kaikesta, Mumu. Olet maailman paras isoäiti.", nl:"Bedankt voor alles, Mumu. Je bent de beste oma ter wereld."},
+  {fi:"Tänään grillasimme ja Klaas voitti taas pokerissa.", nl:"Vandaag barbecueden we en Klaas won weer met poker."},
+  {fi:"Haluan oppia lisää suomea ennen seuraavaa kesää mökillä.", nl:"Ik wil meer Fins leren voor de volgende zomer op het huisje."},
+  {fi:"Rakastan teitä kaikkia. Nähdään pian Tampereella!", nl:"Ik hou van jullie allemaal. Tot snel in Tampere!"},
 ];
 function weekPrompt(){ return WEEK_PROMPTS[weekIndex()%WEEK_PROMPTS.length]; }
 function lessonIndex(){
@@ -1010,16 +1175,25 @@ function renderToday(){
   const off=state.offset||0;
   document.getElementById("lessonEyebrow").textContent="Les "+(idx+1)+" / "+DATA.length;
   document.getElementById("lessonTitle").textContent=lesson.g;
+  document.getElementById("lessonFocus").textContent=lesson.focus||"";
   let sub;
   if(off===0) sub=dateLabel();
   else if(off>0) sub="vooruit · +"+off+(off>1?" lessen":" les");
   else sub="terug · "+off+(off<-1?" lessen":" les");
   document.getElementById("todayDate").textContent=sub;
   document.getElementById("todayReset").classList.toggle("hidden", off===0);
-  document.getElementById("todayCount").textContent=list.length+" woorden en zinnen";
+  const zinnen=(lesson.zinnen||[]).map((z,zi)=>({fi:z.fi, nl:z.nl, id:idx+"-z"+zi}));
+  const playables=list.concat(zinnen);
+  document.getElementById("todayCount").textContent=playables.length+" woorden en zinnen";
   const box=document.getElementById("todayList"); box.innerHTML="";
   list.forEach(it=>box.appendChild(cardEl(it)));
-  document.getElementById("playToday").onclick=()=>playList(list);
+  if(zinnen.length){
+    const sh=document.createElement("div"); sh.className="group";
+    const hh=document.createElement("h3"); hh.textContent="Zinnen"; sh.appendChild(hh);
+    box.appendChild(sh);
+    zinnen.forEach(z=>box.appendChild(cardEl(z)));
+  }
+  document.getElementById("playToday").onclick=()=>playList(playables);
 }
 function changeLesson(d){
   stopAll();
@@ -1030,13 +1204,18 @@ function changeLesson(d){
 }
 function renderAll(){
   const box=document.getElementById("view-all"); box.innerHTML="";
-  DATA.forEach(grp=>{
+  DATA.forEach((grp,gi)=>{
     const wrap=document.createElement("div"); wrap.className="group";
     const h=document.createElement("h3"); h.textContent=grp.g; wrap.appendChild(h);
+    if(grp.focus){ const f=document.createElement("div"); f.className="group-focus"; f.textContent=grp.focus; wrap.appendChild(f); }
     grp.items.forEach((it,ii)=>{
       const full=FLAT.find(f=>f.fi===it.fi && f.group===grp.g);
       wrap.appendChild(cardEl(full));
     });
+    if(grp.zinnen && grp.zinnen.length){
+      const sh=document.createElement("div"); sh.className="sent-sub"; sh.textContent="Zinnen"; wrap.appendChild(sh);
+      grp.zinnen.forEach((z,zi)=>wrap.appendChild(cardEl({fi:z.fi, nl:z.nl, id:gi+"-z"+zi})));
+    }
     box.appendChild(wrap);
   });
 }
