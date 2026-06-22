@@ -192,5 +192,22 @@
     {"fi":"taas uudestaan","nl":"nog een keer"},
     {"fi":"Hyvä veto!","nl":"Goeie poging!"},
     {"fi":"Oli hauskaa","nl":"Het was leuk"}
+  ]},
+  {"g":"Veneily ja vetorengas","items":[
+    {"fi":"veneily","nl":"varen / het water op"},
+    {"fi":"vene","nl":"boot","note":"Co'tje trekt"},
+    {"fi":"vetorengas","nl":"tube / band achter de boot","note":"Jarno's plek: wakeboarden lukt hem niet"},
+    {"fi":"wakeboard","nl":"wakeboard","note":"voor de dapperen, niet voor Jarno"},
+    {"fi":"köysi","nl":"touw"},
+    {"fi":"vauhti","nl":"vaart"},
+    {"fi":"pelastusliivit","nl":"zwemvest"},
+    {"fi":"Pidä kiinni!","nl":"Hou vast!"},
+    {"fi":"Älä päästä irti!","nl":"Laat niet los!","note":"päästää irti = loslaten"},
+    {"fi":"kaatua","nl":"omvallen","note":"wat Jarno op de plank doet"},
+    {"fi":"roiske","nl":"plons / spatwater"},
+    {"fi":"nauraa","nl":"lachen"},
+    {"fi":"rauhassa","nl":"rustig aan","note":"liever rustig in de band dan staand op de plank"},
+    {"fi":"taas uudestaan","nl":"nog een keer"},
+    {"fi":"Oliko hauskaa?","nl":"Was het leuk?"}
   ]}
 ]
