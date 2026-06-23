@@ -16,7 +16,6 @@ const FUN = JSON.parse(readFileSync(join(ROOT, 'themes-bank-fun.json'), 'utf8'))
 // Edities: elk eigen pagina, pointer en weekbrief.
 const EDITIONS = [
   { html: 'index.html', pointer: '.bank-pointer',       brief: 'weekbrief.md',       label: 'Suomi-treeni' },
-  { html: 'jarno.html', pointer: '.bank-pointer-jarno', brief: 'weekbrief-jarno.md', label: 'Suomi · Jarno' },
 ];
 
 // Deterministische playlist: 2 neutraal, dan 1 fun, herhalend. Stabiel bij toevoegen aan het eind.
